@@ -39,7 +39,7 @@ function handleSubmit(e) {
         clearInterval(intervalId);
     }
 
-    intervalId = setInterval(() => {
+    intervalId = setTimeout(() => {
         createRequest(search)
             .then(data => {
                 if (!data.length) {
