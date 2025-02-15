@@ -18,8 +18,6 @@ let lightbox = new SimpleLightbox('.card-list a', {
     captionDelay: 250,
 });
 
-let intervalId; 
-
 function handleSubmit(e) {
     e.preventDefault();
     const search = e.currentTarget.elements.query.value.trim();
@@ -33,37 +31,46 @@ function handleSubmit(e) {
         return;
     }
 
+    refs.cardList.innerHTML = "";
+
     refs.loader.style.display = "block";
 
-    if (intervalId) {
-        clearInterval(intervalId);
-    }
-
-    intervalId = setTimeout(() => {
+    function fetchImages() {
         createRequest(search)
             .then(data => {
                 if (!data.length) {
                     iziToast.info({
                         title: "Not found",
-                        message: "😢 Sorry, there are no images matching your search query. Please try again!",
+                        message: "😢 No images found.",
                         position: "topRight",
                     });
+
+                    refs.cardList.innerHTML = "";
+
                     return;
                 }
+
                 refs.cardList.innerHTML = requestsMarkups(data);
+                
                 lightbox.refresh();
             })
             .catch(error => {
                 iziToast.error({
                     title: "Error",
-                    message: "🚨 Sorry, something went wrong. Please try again!",
+                    message: "🚨 Something went wrong. Please try again!",
                     position: "topRight",
                 });
+
+                console.error("❌ API request error:", error);
+
+                refs.cardList.innerHTML = "";
             })
             .finally(() => {
                 refs.loader.style.display = "none";
             });
-    }, 3000);
+    }
+
+    fetchImages();
 
     e.currentTarget.reset();
 }
